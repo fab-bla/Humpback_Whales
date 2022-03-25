@@ -1,0 +1,32 @@
+---
+title: |
+       | 
+author: "Fabian Blasch"
+date: "`r format(Sys.Date(), format = '%d.%m.%Y')`"
+header-includes:
+   - \usepackage{amsmath}
+   - \usepackage{amssymb}
+   - \usepackage{float}
+   - \usepackage{titling}
+   - \usepackage{xcolor}
+output: 
+   pdf_document:
+      number_sections: TRUE
+bibliography: lit.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      fig.pos = "center",
+                      fig.width = 8,
+                      fig.height = 4,
+                      fig.pos = "H",
+                      out.extra = "")
+```
+
+\begin{center}
+\includegraphics[width = 380pt]{whale.jpg} 
+\end{center}
+\thispagestyle{empty}
+\newpage
+\pagenumbering{arabic} 
