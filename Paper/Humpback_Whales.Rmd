@@ -15,13 +15,16 @@ output:
 bibliography: lit.bib
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE,
                       fig.pos = "center",
                       fig.width = 8,
                       fig.height = 4,
                       fig.pos = "H",
                       out.extra = "")
+
+# aux functions
+source("Auxilliary.R")
 ```
 
 \begin{center}
@@ -34,7 +37,54 @@ knitr::opts_chunk$set(echo = TRUE,
 # Data and Desciptive Statistics 
 
 ```{r}
-# import data
+# import data (this dataset is unfortunatelly not public)
+openxlsx::read.xlsx("./../Data/Humpback_Whales_Data.xlsx") -> dat_whale
 
+# fist a quick look at the missing values in the data
+sapply(dat_whale,  \(x) sum(is.na(x))) |> knitr::kable(col.names = "NAs")
+
+# harmonize names
+colnames(dat_whale) <- tolower(colnames(dat_whale))
+
+# to numeric
+lapply(dat_whale[, c("ruhezeit", "speed", "atem")], as.numeric) -> dat_whale[, c("ruhezeit", "speed", "atem")]
+
+# to factor
+lapply(dat_whale[ ,!(colnames(dat_whale) %in%  c("ruhezeit", "speed", "atem"))], 
+       as.factor) -> dat_whale[ ,!(colnames(dat_whale) %in%  c("ruhezeit", "speed", "atem"))]
+
+# relevel 
+factor(dat_whale[, "szenario"], 
+       levels = c("Before", "During", "After")) -> dat_whale[, "szenario"] 
+factor(dat_whale[, "treatment"], c("Medium", "High", "Control")) -> dat_whale[, "treatment"]
+
+# frist split into different intensities
+dat_whale_intens <- split(dat_whale, dat_whale[, "treatment"]) 
 ```
+```{r, fig.height = 11}
+# build formulas
+formulae <- paste(c("ruhezeit", "speed", "atem"), "~", "szenario")
+
+# over treatment
+invis.Map(\(x, nom){
+   
+   # align
+   par(mfrow = c(3, 1))
+   
+   # over szenarios
+   invis.Map(\(y, ind){
+    
+      # boxplots
+      boxplot(as.formula(y), data = x, 
+              col = c("cornflowerblue", "deepskyblue4", "darkblue"))
+      
+      # add label
+      if(ind) mtext(nom, side = 3, line = 2, cex = 2)
+      
+      
+   }, formulae, rep(c(T, F, F), 3))
+   
+}, dat_whale_intens, names(dat_whale_intens))
+```
+
 
