@@ -1,8 +1,8 @@
 ---
 title: |
-       | 
+       | Humpback Whales and Ship Noise
 author: "Fabian Blasch"
-date: "`r format(Sys.Date(), format = '%d.%m.%Y')`"
+date: "`r format(Sys.Date(), format = '%m/%d/%Y')`"
 header-includes:
    - \usepackage{amsmath}
    - \usepackage{amssymb}
@@ -16,7 +16,7 @@ bibliography: lit.bib
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE,
+knitr::opts_chunk$set(echo = TRUE,
                       fig.pos = "center",
                       fig.width = 8,
                       fig.height = 4,
@@ -25,8 +25,16 @@ knitr::opts_chunk$set(echo = FALSE,
 ```
 
 \begin{center}
-\includegraphics[width = 380pt]{whale.jpg} 
+\includegraphics[width = 380pt]{pic.png} 
 \end{center}
 \thispagestyle{empty}
 \newpage
 \pagenumbering{arabic} 
+
+# Data and Desciptive Statistics 
+
+```{r}
+# import data
+
+```
+
