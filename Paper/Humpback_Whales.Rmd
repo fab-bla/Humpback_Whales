@@ -56,7 +56,7 @@ lapply(dat_whale[ ,!(colnames(dat_whale) %in%  c("ruhezeit", "speed", "atem"))],
 # relevel 
 factor(dat_whale[, "szenario"], 
        levels = c("Before", "During", "After")) -> dat_whale[, "szenario"] 
-factor(dat_whale[, "treatment"], c("Medium", "High", "Control")) -> dat_whale[, "treatment"]
+factor(dat_whale[, "treatment"], c("Control", "Medium", "High")) -> dat_whale[, "treatment"]
 
 # frist split into different intensities
 dat_whale_intens <- split(dat_whale, dat_whale[, "treatment"]) 
@@ -65,26 +65,28 @@ dat_whale_intens <- split(dat_whale, dat_whale[, "treatment"])
 # build formulas
 formulae <- paste(c("ruhezeit", "speed", "atem"), "~", "szenario")
 
-# over treatment
-invis.Map(\(x, nom){
+# over szenarios
+invis.Map(\(y){
    
    # align
-   par(mfrow = c(3, 1))
+   par(mfrow = c(3, 1), mar = c(2, 4, 4, 2) + 0.1)   
+
+   # over treatment
+   invis.Map(\(x, nom){
    
-   # over szenarios
-   invis.Map(\(y, ind){
-    
       # boxplots
       boxplot(as.formula(y), data = x, 
               col = c("cornflowerblue", "deepskyblue4", "darkblue"))
       
       # add label
-      if(ind) mtext(nom, side = 3, line = 2, cex = 2)
+      mtext(nom, side = 3, line = 1, cex = 1.2)
       
-      
-   }, formulae, rep(c(T, F, F), 3))
+
+   }, dat_whale_intens, names(dat_whale_intens))  
    
-}, dat_whale_intens, names(dat_whale_intens))
+}, formulae)
 ```
+
+
 
 
