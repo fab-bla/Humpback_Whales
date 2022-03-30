@@ -104,7 +104,7 @@ The basic idea behind looking at a scatterplot of the speed of the animal and th
 ```{r, warning = FALSE, message = FALSE, fig.height = 5}
 # scatter 1
 ggplot(dat_whale, aes(x = speed, y = atem, color = treatment,
-               shape = szenario)) +
+               shape = szenario, linetype = szenario)) +
   geom_point(size = 2) +
   geom_smooth(method = "lm", se = FALSE) +
   theme_bw() +
@@ -113,7 +113,7 @@ ggplot(dat_whale, aes(x = speed, y = atem, color = treatment,
 
 # scatter 2
 ggplot(dat_whale, aes(x = logspeed, y = logatem, color = treatment,
-               shape = szenario)) +
+                      shape = szenario, linetype = szenario)) +
   geom_point(size = 2) +
   geom_smooth(method = "lm", se = FALSE) +
   theme_bw() -> plot2
