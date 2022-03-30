@@ -25,6 +25,9 @@ knitr::opts_chunk$set(echo = TRUE,
 
 # aux functions
 source("Auxilliary.R")
+
+# packages
+get.package(c("ggplot2", "patchwork"))
 ```
 
 \begin{center}
@@ -58,9 +61,17 @@ factor(dat_whale[, "szenario"],
        levels = c("Before", "During", "After")) -> dat_whale[, "szenario"] 
 factor(dat_whale[, "treatment"], c("Control", "Medium", "High")) -> dat_whale[, "treatment"]
 
+# add log
+within(dat_whale,{
+   logspeed <- log(speed)
+   logatem <- log(atem)
+}) -> dat_whale
+
+
 # frist split into different intensities
 dat_whale_intens <- split(dat_whale, dat_whale[, "treatment"]) 
 ```
+
 ```{r, fig.height = 11}
 # build formulas
 formulae <- paste(c("ruhezeit", "speed", "atem"), "~", "szenario")
@@ -81,11 +92,36 @@ invis.Map(\(y){
       # add label
       mtext(nom, side = 3, line = 1, cex = 1.2)
       
-
    }, dat_whale_intens, names(dat_whale_intens))  
    
 }, formulae)
 ```
+
+# Speed and Breath
+
+The basic idea behind looking at a scatterplot of the speed of the animal and the breath frequency for different groups is, that we would expect the breathe frequency to increase with speed, but if the whale is additionally stressed because of external influence, then the breather should increase above the normally expected level of breathing frequency for a given speed level.
+
+```{r, warning = FALSE, message = FALSE, fig.height = 5}
+# scatter 1
+ggplot(dat_whale, aes(x = speed, y = atem, color = treatment,
+               shape = szenario)) +
+  geom_point(size = 2) +
+  geom_smooth(method = "lm", se = FALSE) +
+  theme_bw() +
+  theme(legend.position = "none") -> plot1
+
+
+# scatter 2
+ggplot(dat_whale, aes(x = logspeed, y = logatem, color = treatment,
+               shape = szenario)) +
+  geom_point(size = 2) +
+  geom_smooth(method = "lm", se = FALSE) +
+  theme_bw() -> plot2
+
+# display side by side
+plot1 + plot2
+```
+
 
 
 
