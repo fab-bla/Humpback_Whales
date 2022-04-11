@@ -77,11 +77,14 @@ dat_whale_intens <- split(dat_whale, dat_whale[, "treatment"])
 formulae <- paste(c("ruhezeit", "speed", "atem"), "~", "szenario")
 
 # over szenarios
-invis.Map(\(y){
+invis.Map(\(y, nom){
+   
+   # safe for presentation
+   # pdf(paste0("./../Presentation/", nom, ".pdf"))
    
    # align
    par(mfrow = c(3, 1), mar = c(2, 4, 4, 2) + 0.1)   
-
+   
    # over treatment
    invis.Map(\(x, nom){
    
@@ -94,12 +97,15 @@ invis.Map(\(y){
       
    }, dat_whale_intens, names(dat_whale_intens))  
    
-}, formulae)
+   # close graph. device
+   # dev.off()
+   
+}, formulae, c("resting", "speed", "respatory"))
 ```
 
 # Speed and Breath
 
-The basic idea behind looking at a scatterplot of the speed of the animal and the breath frequency for different groups is, that we would expect the breathe frequency to increase with speed, but if the whale is additionally stressed because of external influence, then the breather should increase above the normally expected level of breathing frequency for a given speed level.
+The basic idea behind looking at a scatterplot of the speed of the animal and the breath frequency for different groups is, that we would expect the breathe frequency to increase with speed, but if the whale is additionally stressed because of external influence, then the breathe should increase above the normally expected level of breathing frequency for a given speed level.
 
 ```{r, warning = FALSE, message = FALSE, fig.height = 5}
 # scatter 1
