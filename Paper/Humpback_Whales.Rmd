@@ -76,8 +76,16 @@ dat_whale_intens <- split(dat_whale, dat_whale[, "treatment"])
 # build formulas
 formulae <- paste(c("ruhezeit", "speed", "atem"), "~", "szenario")
 
+# max and min for plot y-axis
+sapply(c(min, max), \(x){
+   
+   sapply(dat_whale[, c("ruhezeit", "speed", "atem")], \(y) x(y, na.rm = TRUE))
+   
+   
+}) -> ylims
+
 # over szenarios
-invis.Map(\(y, nom){
+invis.Map(\(y, nom, lims){
    
    # safe for presentation
    # pdf(paste0("./../Presentation/", nom, ".pdf"))
@@ -90,7 +98,8 @@ invis.Map(\(y, nom){
    
       # boxplots
       boxplot(as.formula(y), data = x, 
-              col = c("cornflowerblue", "deepskyblue4", "darkblue"))
+              col = c("cornflowerblue", "deepskyblue4", "darkblue"),
+              ylim = c(lims[1], lims[2]))
       
       # add label
       mtext(nom, side = 3, line = 1, cex = 1.2)
@@ -100,7 +109,8 @@ invis.Map(\(y, nom){
    # close graph. device
    # dev.off()
    
-}, formulae, c("resting", "speed", "respatory"))
+}, formulae, c("resting", "speed", "respatory"), ylims |> t() |> as.data.frame())
+
 ```
 
 # Speed and Breath

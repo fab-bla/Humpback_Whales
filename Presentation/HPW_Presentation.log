@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999994 (MiKTeX 22.3) (preloaded format=xelatex 2022.3.28)  11 APR 2022 17:49
+This is XeTeX, Version 3.141592653-2.6-0.999994 (MiKTeX 22.3) (preloaded format=xelatex 2022.3.28)  22 APR 2022 16:49
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1421,6 +1421,27 @@ Overfull \vbox (16.65067pt too high) detected at line 236
 
 [8
 
+] [9
+
+]
+File: Loc_panama.png Graphic file (type bmp)
+<Loc_panama.png>
+[10
+
+]
+File: boat_behaviour.png Graphic file (type bmp)
+<boat_behaviour.png>
+[11
+
+]
+LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
+(Font)              scaled to size 7.21117pt on input line 348.
+LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
+(Font)              scaled to size 7.2118pt on input line 348.
+LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
+(Font)              scaled to size 7.21042pt on input line 348.
+[12
+
 ]
 \tf@nav=\write5
 \openout5 = `HPW_Presentation.nav'.
@@ -1433,12 +1454,12 @@ Overfull \vbox (16.65067pt too high) detected at line 236
 
 (HPW_Presentation.aux) ) 
 Here is how much of TeX's memory you used:
- 30801 strings out of 410967
- 619289 string characters out of 2823753
- 1055135 words of memory out of 3000000
- 51016 multiletter control sequences out of 15000+600000
- 475671 words of font info for 76 fonts, out of 8000000 for 9000
+ 30891 strings out of 410967
+ 621605 string characters out of 2823753
+ 1057423 words of memory out of 3000000
+ 51101 multiletter control sequences out of 15000+600000
+ 476652 words of font info for 83 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 128i,11n,122p,1015b,522s stack positions out of 10000i,1000n,20000p,200000b,80000s
+ 128i,11n,122p,1015b,555s stack positions out of 10000i,1000n,20000p,200000b,80000s
 
-Output written on HPW_Presentation.pdf (8 pages).
+Output written on HPW_Presentation.pdf (12 pages).
