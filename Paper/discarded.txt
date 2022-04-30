@@ -1,0 +1,22 @@
+
+# Speed and Breath
+
+During the presentation a comment came up, that speed and breathing frequency have a dependent relationship, which would potentially influence the estimates in our mixed effects model.
+
+```{r, warning = FALSE, message = FALSE, fig.height = 5}
+
+# ignore grouping 
+ggplot(dat_whale, aes(x = logspeed, y = logatem)) +
+   geom_point(size = 2) +
+   geom_smooth(method = "lm", se = FALSE) +
+   theme_bw() -> plot1
+
+# different groups 
+ggplot(dat_whale, aes(x = logspeed, y = logatem, color = treatment)) +
+   geom_point(size = 2) +
+   geom_smooth(method = "lm", se = FALSE) +
+   theme_bw() -> plot2
+
+plot1 + plot2
+```
+\newpage

@@ -27,7 +27,7 @@ knitr::opts_chunk$set(echo = TRUE,
 source("Auxilliary.R")
 
 # packages
-get.package(c("ggplot2", "patchwork"))
+get.package(c("ggplot2", "patchwork", "MASS", "stargazer"))
 ```
 
 \begin{center}
@@ -64,7 +64,13 @@ factor(dat_whale[, "treatment"], c("Control", "Medium", "High")) -> dat_whale[, 
 # add log
 within(dat_whale,{
    logspeed <- log(speed)
+   atem[atem == 0] <- 0.001
+   ruhezeit[ruhezeit == 0] <- 0.001
    logatem <- log(atem)
+   logruhezeit <- log(ruhezeit)
+   sqrtatem <- sqrt(atem)
+   sqrtspeed <- sqrt(speed)
+   sqrtruhezeit <- sqrt(ruhezeit)
 }) -> dat_whale
 
 
@@ -113,31 +119,86 @@ invis.Map(\(y, nom, lims){
 
 ```
 
-# Speed and Breath
+# Distribution of Covariates
 
-The basic idea behind looking at a scatterplot of the speed of the animal and the breath frequency for different groups is, that we would expect the breathe frequency to increase with speed, but if the whale is additionally stressed because of external influence, then the breathe should increase above the normally expected level of breathing frequency for a given speed level.
+```{r, warnings = FALSE, fig.height = 10}
+# vars
+nom <- c("ruhezeit", "speed", "atem")
+nom <- c(nom, paste0("log", nom), paste0("sqrt", nom))
 
-```{r, warning = FALSE, message = FALSE, fig.height = 5}
-# scatter 1
-ggplot(dat_whale, aes(x = speed, y = atem, color = treatment,
-               shape = szenario, linetype = szenario)) +
-  geom_point(size = 2) +
-  geom_smooth(method = "lm", se = FALSE) +
-  theme_bw() +
-  theme(legend.position = "none") -> plot1
+# loop to generate plots
+lapply(nom, \(x) Dens_norm_plot(y = x)) -> plots
 
-
-# scatter 2
-ggplot(dat_whale, aes(x = logspeed, y = logatem, color = treatment,
-                      shape = szenario, linetype = szenario)) +
-  geom_point(size = 2) +
-  geom_smooth(method = "lm", se = FALSE) +
-  theme_bw() -> plot2
-
-# display side by side
-plot1 + plot2
+# display (remove useless bin width messages)
+print((plots[[1]] + plots[[2]] + plots[[3]]) / 
+      (plots[[4]] + plots[[5]] + plots[[6]]) / 
+      (plots[[7]] + plots[[8]] + plots[[9]])) |> 
+      suppressWarnings() |>
+      suppressMessages()
 ```
 
+# Model
+
+```{r}
+# formulas
+formulae_glmm <- c("speed ~ I(treatment) * I(szenario)",
+                   "ruhezeit ~ I(treatment) * I(szenario)",
+                   "atem ~ I(treatment) * I(szenario)")
+
+# fit models
+lapply(formulae_glmm, \(x){
+   
+   # fit
+   MASS::glmmPQL(as.formula(x), random = ~ 1 | individuum,
+                 family = quasi(link = "identity", variance = "constant"),
+                 data = dat_whale) -> fit
+   
+   # summary
+   list(fit, 
+        summary(fit))
+   
+}) |> setNames(c("speed", "ruhezeit", "atem")) |> suppressMessages() -> models
+
+# fits and summaries
+glmmPQL_fits <- lapply(models, "[[", 1)
+glmmPQL_summaries <- lapply(models, "[[", 2)
+```
+
+# Residual Diagnostics
+
+```{r, fig.height = 10}
+# align
+par(mfrow = c(3, 2), mar = c(2, 4, 4, 2) + 0.1) 
+
+# residual plots
+invis.Map(\(x, nom){
+   
+   invis.Map(\(y, col){
+  
+      # plots
+      plot(x[["residuals"]][, y], type = "p", ylab = y, xlab = "", pch = 19,
+           col = col)
+      
+      # label
+      mtext(nom, side = 3, line = 1, cex = 1.2)
+      
+   }, c("fixed", "individuum"), c("cornflowerblue", "deepskyblue4"))
+   
+}, glmmPQL_fits, c("Speed", "% Resting", "Breathe Freq."))
+```
+
+# Coefficients and t-Tests
+
+```{r}
+invis.lapply(c("speed", "ruhezeit", "atem"), \(x){
+   
+   # mods
+   mod <- models[[x]][[2]][["tTable"]]
+   
+   # print table
+   print(knitr::kable(mod))
+})
+```
 
 
 
