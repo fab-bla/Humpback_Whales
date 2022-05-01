@@ -27,7 +27,7 @@ knitr::opts_chunk$set(echo = TRUE,
 source("Auxilliary.R")
 
 # packages
-get.package(c("ggplot2", "patchwork", "MASS", "stargazer"))
+get.package(c("ggplot2", "patchwork", "MASS", "stargazer", "nlme"))
 ```
 
 \begin{center}
@@ -70,7 +70,7 @@ within(dat_whale,{
    logruhezeit <- log(ruhezeit)
    sqrtatem <- sqrt(atem)
    sqrtspeed <- sqrt(speed)
-   sqrtruhezeit <- sqrt(ruhezeit)
+   sqrtruhezeit <- sqrt(ruhezeit * 100)
 }) -> dat_whale
 
 
@@ -141,34 +141,64 @@ print((plots[[1]] + plots[[2]] + plots[[3]]) /
 
 ```{r}
 # formulas
-formulae_glmm <- c("speed ~ I(treatment) * I(szenario)",
-                   "ruhezeit ~ I(treatment) * I(szenario)",
-                   "atem ~ I(treatment) * I(szenario)")
+formulae_lmm <- c("speed ~ I(treatment) * I(szenario)",
+                  "atem ~ I(treatment) * I(szenario)",
+                  "logspeed ~ I(treatment) * I(szenario)",
+                  "sqrtatem ~ I(treatment) * I(szenario)")
+
+formulae_glmm <- "ruhezeit ~ I(treatment) * I(szenario)"
+
+# comb
+formulae_cmb <- list(formulae_lmm, formulae_glmm)
 
 # fit models
-lapply(formulae_glmm, \(x){
+Map(\(type, bool){
    
-   # fit
-   MASS::glmmPQL(as.formula(x), random = ~ 1 | individuum,
-                 family = quasi(link = "identity", variance = "constant"),
-                 data = dat_whale) -> fit
+   lapply(type, \(x){
+      
+      if(bool){ # LMMs
+         
+         # fit LMM
+         nlme::lme(as.formula(x), random = ~ 1 | individuum,
+                   data = dat_whale, na.action = na.omit,
+                   method = "REML") -> fit
+         
+         # summary
+         list(fit, 
+              summary(fit))
+         
+      } else { # GLMMs
+         
+         # fit glmm PQL
+         MASS::glmmPQL(as.formula(x), random = ~ 1 | individuum,
+                       family = binomial(link = "logit"),
+                       data = dat_whale) -> fit
+         
+         # summary
+         list(fit, 
+              summary(fit))
+      }
+
+   }) |> setNames(type)
    
-   # summary
-   list(fit, 
-        summary(fit))
-   
-}) |> setNames(c("speed", "ruhezeit", "atem")) |> suppressMessages() -> models
+}, formulae_cmb, c(TRUE, FALSE)) |> setNames(c("LMM", "GLMM")) -> models
 
 # fits and summaries
-glmmPQL_fits <- lapply(models, "[[", 1)
-glmmPQL_summaries <- lapply(models, "[[", 2)
+LMM_fits <- lapply(models[[1]], "[[", 1)
+LMM_summaries <- lapply(models[[1]], "[[", 2)
+glmmPQL_fits <- lapply(models[[2]], "[[", 1)
+glmmPQL_summaries <- lapply(models[[2]], "[[", 2)
+
+# rebind fits for plotting
+fits <- c(LMM_fits, glmmPQL_fits)
+summaries <- c(LMM_summaries, glmmPQL_summaries)
 ```
 
 # Residual Diagnostics
 
-```{r, fig.height = 10}
+```{r, fig.height = 12}
 # align
-par(mfrow = c(3, 2), mar = c(2, 4, 4, 2) + 0.1) 
+par(mfrow = c(5, 2), mar = c(2, 4, 4, 2) + 0.1) 
 
 # residual plots
 invis.Map(\(x, nom){
@@ -184,20 +214,41 @@ invis.Map(\(x, nom){
       
    }, c("fixed", "individuum"), c("cornflowerblue", "deepskyblue4"))
    
-}, glmmPQL_fits, c("Speed", "% Resting", "Breathe Freq."))
+}, fits, c("Speed", "Breathe Freq.", "LogSpeed", "SqrtBreathe Freq.", "% Resting"))
+
+# qqplots
+par(mfrow = c(5, 2), mar = c(3.8, 4, 4, 2) + 0.1) 
+
+# residual plots
+invis.Map(\(x, nom){
+   
+   invis.Map(\(y, col){
+  
+      # plots
+      qqnorm(x[["residuals"]][, y], pch = 19, col = col, main = "")
+      
+      # line
+      qqline(x[["residuals"]][, y], col = "darkblue")
+      
+      # label
+      mtext(paste(nom, "-", y), side = 3, line = 1, cex = 1.2)
+      
+   }, c("fixed", "individuum"), c("cornflowerblue", "deepskyblue4"))
+   
+}, fits, c("Speed", "Breathe Freq.", "LogSpeed", "SqrtBreathe Freq.", "% Resting"))
 ```
 
 # Coefficients and t-Tests
 
 ```{r}
-invis.lapply(c("speed", "ruhezeit", "atem"), \(x){
+invis.lapply(names(summaries), \(x){
    
    # mods
-   mod <- models[[x]][[2]][["tTable"]]
+   mod <- summaries[[x]][["tTable"]]
    
    # print table
-   print(knitr::kable(mod))
-})
+   knitr::kable(mod)
+}) |> setNames(names(summaries))
 ```
 
 
