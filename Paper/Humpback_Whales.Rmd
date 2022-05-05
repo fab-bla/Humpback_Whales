@@ -127,7 +127,8 @@ nom <- c("ruhezeit", "speed", "atem")
 nom <- c(nom, paste0("log", nom), paste0("sqrt", nom))
 
 # loop to generate plots
-lapply(nom, \(x) Dens_norm_plot(y = x)) -> plots
+Map(\(x, bool) Dens_norm_plot(y = x, bg_alt = bool),
+    nom, c(F, F, F, F, T, F, F ,F ,T)) -> plots
 
 # display (remove useless bin width messages)
 print((plots[[1]] + plots[[2]] + plots[[3]]) / 
@@ -181,7 +182,8 @@ Map(\(type, bool){
 
    }) |> setNames(type)
    
-}, formulae_cmb, c(TRUE, FALSE)) |> setNames(c("LMM", "GLMM")) -> models
+}, formulae_cmb, c(TRUE, FALSE)) |> setNames(c("LMM", "GLMM")) |> 
+   suppressMessages() |> suppressWarnings() -> models
 
 # fits and summaries
 LMM_fits <- lapply(models[[1]], "[[", 1)
@@ -248,6 +250,7 @@ invis.lapply(names(summaries), \(x){
    
    # print table
    knitr::kable(mod)
+      
 }) |> setNames(names(summaries))
 ```
 
