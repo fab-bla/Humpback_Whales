@@ -48,9 +48,9 @@ Dens_norm_plot <- \(data = dat_whale, y, bg_alt = FALSE){
     # add colored grid optionally
     {if(bg_alt) theme(panel.background = element_rect(fill = "#90EE90",
                                       size = 2, linetype = "solid"),
-          panel.grid.major = element_line(size = 0.5, linetype = 'solid',
-                                      colour = "white"), 
-          panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
-                                      colour = "white"))}
+                      panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                                      colour = "white"), 
+                      panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
+                                                      colour = "white"))}
   
 }
