@@ -1,0 +1,67 @@
+---
+title: | 
+        | Effects of Vessel Noise on 
+        | Humpback Whales
+author: "Fabian Blasch"
+date: "`r format(Sys.Date(), format = '%m/%d/%Y')`"
+fontsize: 9pt
+output: 
+  beamer_presentation:
+    latex_engine: xelatex
+header-includes:
+   - \usepackage{caption}
+   - \captionsetup[figure]{font = tiny}
+   - \usepackage{amsmath}
+fig_caption: true
+fig_width: 1.5 
+fig_height: 1
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+options(tinytex.verbose = TRUE)
+```
+
+```{r, echo = F, results = "hide", message = FALSE, warning = FALSE}
+# aux functions
+source("./../Paper/Auxilliary.R")
+
+# packages
+get.package(c("ggplot2", "patchwork"))
+```
+
+# Experiment Description and Data Generation 
+
+* Vessel approaches consisted of a typical whale-watch approach; transiting past a logging mother-calf pair at 100 m distance at slow speed
+
+* Vessel noise was played through a transducer that was suspended from the side of the vessel to 1.5 m below the surface to mimic typical depth of propellers/shaft/exhaust of whale-watching vessels.
+
+* The vessel noise imitation was set to different levels: control (124 dB), low (148 dB), medium (160 dB) and high (172 dB)
+
+```{r, out.width = "85%", fig.align = "center", fig.cap = "Experiment Design"}
+knitr::include_graphics("./../Presentation_1/exper.jpg")
+```
+
+# Data 
+
+* The Data set contains 42 observations, for which there exist three entries per noise level. One before, one during and one after the whales were exposed to the synthetic vessel noises
+
+* Three different measures were taken:
+  - The respiration rate was calculated as the number of breaths per minute
+  - The mean swim speed (m/s), calculated by dividing the distance traveled by the duration of a video recording
+  - The proportion of time resting
+  
+# Covariates and Transformations
+
+```{r, out.width = "75%", fig.align = "center", fig.cap = "Covariates and Transformations"}
+knitr::include_graphics("Covariates.pdf")
+```
+
+# Models
+
+* blabla
+
+```{r, out.width = "95%", fig.align = "center", fig.cap = "Sprogis et al. Supplementary file 2"}
+knitr::include_graphics("Models.png")
+```
+  
