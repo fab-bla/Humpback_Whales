@@ -141,7 +141,7 @@ Map(\(x, bool) Dens_norm_plot(y = x, bg_alt = bool),
 
 
 # safe for presentation
-# pdf("./../Presentation_2/Covariates.pdf")
+# pdf("./../Presentation_2/Variables.pdf")
 
 # display (remove useless bin width messages)
 print((plots[[1]] + plots[[2]] + plots[[3]]) / 
@@ -159,8 +159,7 @@ print((plots[[1]] + plots[[2]] + plots[[3]]) /
 # formulas
 formulae_lmm <- c("speed ~ I(treatment) * I(szenario)",
                   "atem ~ I(treatment) * I(szenario)",
-                  "logspeed ~ I(treatment) * I(szenario)",
-                  "sqrtatem ~ I(treatment) * I(szenario)")
+                  "logspeed ~ I(treatment) * I(szenario)")
 
 formulae_glmm <- "ruhezeit ~ I(treatment) * I(szenario)"
 
@@ -195,10 +194,18 @@ Map(\(type, bool1){
               summary(fit))
       }
 
-   }, type, c(corAR1(), NULL, corAR1(), NULL)) |> setNames(type)
+   }, type, list(corAR1(), NULL, corAR1(), NULL)) |> setNames(type)
    
 }, formulae_cmb, c(TRUE, FALSE)) |> setNames(c("LMM", "GLMM")) |> 
    suppressMessages() |> suppressWarnings() -> models
+
+# remove empty
+lapply(models, \(x){
+  
+  # subset models from loop list
+  x[!(names(x) |> is.na())]
+  
+}) -> models
 
 # fits and summaries
 LMM_fits <- lapply(models[[1]], "[[", 1)
@@ -209,21 +216,20 @@ glmmPQL_summaries <- lapply(models[[2]], "[[", 2)
 # rebind fits for plotting
 fits <- c(LMM_fits, glmmPQL_fits)
 summaries <- c(LMM_summaries, glmmPQL_summaries)
-```
 
-```{r}
-# compare
-plot(resid(fits[[1]]))
-plot(ranef(fits[[4]]))
-plot(fixef(fits[[1]]))
+# write into presentation folder
+# saveRDS(fits, "./../Presentation_2/fits.RDS")
+# saveRDS(summaries, "./../Presentation_2/summaries.RDS")
 ```
-
 
 # Residual Diagnostics
 
 ```{r, fig.height = 12}
+# adjust names
+nome <- c("Speed", "Breathe Freq.", "LogSpeed", "% Resting")
+
 # align
-par(mfrow = c(5, 2), mar = c(2, 4, 4, 2) + 0.1) 
+par(mfrow = c(4, 2), mar = c(2, 4, 4, 2) + 0.1) 
 
 # residual plots
 invis.Map(\(x, nom){
@@ -239,10 +245,10 @@ invis.Map(\(x, nom){
       
    }, c("fixed", "individuum"), c("cornflowerblue", "deepskyblue4"))
    
-}, fits, c("Speed", "Breathe Freq.", "LogSpeed", "SqrtBreathe Freq.", "% Resting"))
+}, fits, nome)
 
 # qqplots
-par(mfrow = c(5, 2), mar = c(3.8, 4, 4, 2) + 0.1) 
+par(mfrow = c(4, 2), mar = c(3.8, 4, 4, 2) + 0.1) 
 
 # residual plots
 invis.Map(\(x, nom){
@@ -260,7 +266,7 @@ invis.Map(\(x, nom){
       
    }, c("fixed", "individuum"), c("cornflowerblue", "deepskyblue4"))
    
-}, fits, c("Speed", "Breathe Freq.", "LogSpeed", "SqrtBreathe Freq.", "% Resting"))
+}, fits, nome)
 ```
 
 # Coefficients and t-Tests

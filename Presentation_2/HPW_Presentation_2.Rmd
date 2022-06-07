@@ -11,7 +11,7 @@ output:
 header-includes:
    - \usepackage{caption}
    - \captionsetup[figure]{font = tiny}
-   - \usepackage{amsmath}
+   - \usepackage{booktabs}
 fig_caption: true
 fig_width: 1.5 
 fig_height: 1
@@ -27,10 +27,10 @@ options(tinytex.verbose = TRUE)
 source("./../Paper/Auxilliary.R")
 
 # packages
-get.package(c("ggplot2", "patchwork"))
+get.package(c("ggplot2", "patchwork", "kableExtra"))
 ```
 
-# Experiment Description and Data Generation 
+# Recall:  Experiment Description and Data Generation 
 
 * Vessel approaches consisted of a typical whale-watch approach; transiting past a logging mother-calf pair at 100 m distance at slow speed
 
@@ -42,7 +42,7 @@ get.package(c("ggplot2", "patchwork"))
 knitr::include_graphics("./../Presentation_1/exper.jpg")
 ```
 
-# Data 
+# Recall: Data 
 
 * The Data set contains 42 observations, for which there exist three entries per noise level. One before, one during and one after the whales were exposed to the synthetic vessel noises
 
@@ -51,17 +51,118 @@ knitr::include_graphics("./../Presentation_1/exper.jpg")
   - The mean swim speed (m/s), calculated by dividing the distance traveled by the duration of a video recording
   - The proportion of time resting
   
-# Covariates and Transformations
+# Vairables and Transformations
 
-```{r, out.width = "75%", fig.align = "center", fig.cap = "Covariates and Transformations"}
-knitr::include_graphics("Covariates.pdf")
+```{r, out.width = "75%", fig.align = "center", fig.cap = "Variables and Transformations"}
+knitr::include_graphics("Variables.pdf")
 ```
 
 # Models
 
-* blabla
+* Proportion of time resting
+  - Observations were weighed by the length of the observation period
+  - Penalized quasi-likelihood (GLMM-PQL) to account for over dispersion
+
+* Respiration rate
+  - LMM
+  - Estimated via restricted maximum likelihood
+  
+* Mean swim speed (m/s)
+  - LMM
+  - Estimated via restricted maximum likelihood
+  - To account for autocorrelation within follows, the correlation was modeled with an
+    AR1 process
+
+* Log mean swim speed
+  - LMM
+  - Transformation in hopes of normally distributed residuals
 
 ```{r, out.width = "95%", fig.align = "center", fig.cap = "Sprogis et al. Supplementary file 2"}
 knitr::include_graphics("Models.png")
 ```
+
+# Residual Diagnostics I
+
+```{r, fig.height = 8, out.width = "90%", fig.align = "center"}
+# read
+fits <- readRDS("fits.RDS")
+
+# adjust names
+nome <- c("Speed", "Breathe Freq.", "LogSpeed", "% Resting")
+
+# align
+par(mfrow = c(2, 2), mar = c(2, 4, 4, 2) + 0.1) 
+
+# residual plots
+invis.Map(\(x, nom){
+   
+  # plots
+  plot(x[["residuals"]][, "fixed"], type = "p", ylab = "resid", xlab = "", pch = 19,
+       col = "cornflowerblue")
   
+  # label
+  mtext(nom, side = 3, line = 1, cex = 1.2)
+      
+}, fits, nome)
+```
+
+# Residual Diagnostics II
+
+```{r, fig.height = 8, out.width = "90%", fig.align = "center"}
+
+# qqplots
+par(mfrow = c(2, 2), mar = c(3.8, 4, 4, 2) + 0.1) 
+
+# residual plots
+invis.Map(\(x, nom){
+
+  # plots
+  qqnorm(x[["residuals"]][, "fixed"], pch = 19, col = "cornflowerblue", 
+         main = "")
+  
+  # line
+  qqline(x[["residuals"]][, "fixed"], col = "darkblue")
+  
+  # label
+  mtext(nom, side = 3, line = 1, cex = 1.2)
+   
+}, fits, nome)
+```
+
+
+# Results: speed ~ I(treatment) * I(szenario)
+
+```{r, fig.align = "center", out.width = "90%"}
+# read summaries
+summaries <- readRDS("summaries.RDS")
+
+# xtab
+knitr::kable(summaries[[1]][["tTable"]], format = "latex",  digits = 3) |>
+  kable_styling(font_size = 7)
+```
+
+# Results: logspeed ~ I(treatment) * I(szenario)
+
+```{r, fig.align = "center", out.width = "90%"}
+# xtab
+knitr::kable(summaries[[3]][["tTable"]], format = "latex",  digits = 3) |>
+  kable_styling(font_size = 7)
+```
+
+# Results: atem ~ I(treatment) * I(szenario)
+
+```{r, fig.align = "center", out.width = "90%"}
+# xtab
+knitr::kable(summaries[[2]][["tTable"]], format = "latex",  digits = 3) |>
+  kable_styling(font_size = 7)
+```
+
+# Results: ruhezeit ~ I(treatment) * I(szenario)
+
+```{r, fig.align = "center", out.width = "90%"}
+# xtab
+knitr::kable(summaries[[4]][["tTable"]], format = "latex",  digits = 3) |>
+  kable_styling(font_size = 7)
+```
+
+
