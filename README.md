@@ -5,4 +5,4 @@ When fitting the models as described in the publication, the resulting residuals
 A log-transformation of mean swim spead (m/s) enables us to perform inference via a t-test, as the transformation causes the model residuals to be normally distributed. Unfortunately,
 the remaining findings could not be replicated, since the normality assumption for the t-tests is violated in all other cases. 
 Bootstrapping the test statistic was not attempted and may lead to the discovery of a significant impact of boat noise on the other 
-investigatzed variables. 
+investigated variables. 
