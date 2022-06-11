@@ -60,7 +60,8 @@ knitr::include_graphics("Variables.pdf")
 # Models
 
 * Proportion of time resting
-  - Observations were weighed by the length of the observation period
+  - Observations were weighted by the length of the observation period
+  - \textcolor{red}{The data used to calculate the weights was not available in the provided data set}
   - Penalized quasi-likelihood (GLMM-PQL) to account for over dispersion
 
 * Respiration rate
@@ -76,7 +77,7 @@ knitr::include_graphics("Variables.pdf")
 * Log mean swim speed
   - LMM
   - Transformation in hopes of normally distributed residuals
-
+  
 ```{r, out.width = "95%", fig.align = "center", fig.cap = "Sprogis et al. Supplementary file 2"}
 knitr::include_graphics("Models.png")
 ```
