@@ -1,4 +1,4 @@
-# Humpback_Whales
+# Humpback Whales and Boat Noise
 
 This repository contains the replication of "Vessel noise levels drive behavioural responses of humpback whales with implications for whale-watching" by Sprogis et. al.
 When fitting the models as described in the publication, the resulting residuals do not fullfill the normality assumption required for the inference presented in the paper.
