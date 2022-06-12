@@ -133,6 +133,8 @@ invis.Map(\(x, nom){
 
 # Results: speed ~ I(treatment) * I(szenario)
 
+* Sprogis et al. report: within high noise treatments, swim speed increased significantly by 33% from before to during vessel approaches (p = 0.007)
+
 ```{r, fig.align = "center", out.width = "90%"}
 # read summaries
 summaries <- readRDS("summaries.RDS")
@@ -152,6 +154,8 @@ knitr::kable(summaries[[3]][["tTable"]], format = "latex",  digits = 3) |>
 
 # Results: atem ~ I(treatment) * I(szenario)
 
+* Sprogis et al. report: within the high treatments, the respiration rate from before to during vessel approaches increased significantly by 42% (p = 0.001)
+
 ```{r, fig.align = "center", out.width = "90%"}
 # xtab
 knitr::kable(summaries[[2]][["tTable"]], format = "latex",  digits = 3) |>
@@ -159,6 +163,8 @@ knitr::kable(summaries[[2]][["tTable"]], format = "latex",  digits = 3) |>
 ```
 
 # Results: ruhezeit ~ I(treatment) * I(szenario)
+
+* Sprogis et al. report: within high noise treatments, the proportion of time resting from before to during vessel approaches decreased significantly (p = 0.02)
 
 ```{r, fig.align = "center", out.width = "90%"}
 # xtab
