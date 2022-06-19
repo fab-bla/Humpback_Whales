@@ -1,6 +1,7 @@
 ---
 title: |
        | Humpback Whales and Ship Noise
+       | A Replication Study of Sprogis et al. 2020
 author: "Fabian Blasch"
 date: "`r format(Sys.Date(), format = '%m/%d/%Y')`"
 header-includes:
@@ -20,7 +21,7 @@ knitr::opts_chunk$set(echo = TRUE,
                       fig.pos = "center",
                       fig.width = 8,
                       fig.height = 4,
-                      fig.pos = "H")
+                      fig.pos = "!H")
 # aux functions
 source("Auxilliary.R")
 
@@ -29,16 +30,32 @@ get.package(c("ggplot2", "patchwork", "MASS", "stargazer", "nlme", "lattice"))
 ```
 
 \begin{center}
-\includegraphics[width = 380pt]{pic.png} 
+  \includegraphics[width = 380pt]{pic.png} 
 \end{center}
 \thispagestyle{empty}
 \newpage
 \pagenumbering{arabic} 
 
+# Introduction
+
+The whale watching industry in Australia has been growing at a rapid rate since the cessation of whaling in 1979. Typically, whale watching companies operate large boats to transport tourist to coastal areas to observe groups of whales. Marine Biologists report accumulating evidence that boat-based whale-watching negatively affects whale’s 
+behavior. In particular, one publication by @Sprogis2020 uses a controlled exposure experiment (CEE) to test whether vessel noises affect whales' behavior. To collect the necessary data the marine biologists approach whales with a boat and expose them to different noise levels (low, medium and high). Before, during and after the approach, many variables are measured. Three of those measurements were made available to me, the mean swim speed (m/s), the breathe frequency per minute and the proportion of time resting. The aim of this short report is thus to replicate the study for the provided variables. The figure below provides a concise summary of the CEE.(A) shows the experiment design and (B) displays the boat used for approaching the whales including the transponder used to generate the vessel noise imitations.
+
+\begin{figure}[h!]
+  \begin{center}
+    \includegraphics[width = 380pt]{exper.jpg} 
+  \end{center}
+  \caption{CEE Sprogis et al.}
+\end{figure}
+
+
 # Data and Desciptive Statistics 
 
+To get a first impression of the data, we may first adjust the classes in the data set and
+compute log transformations of the variables. Subsequently, box plots across different noise intensities are displayed for the three levels of the scenario factor, i.e., before, during and after.
+
 ```{r}
-# import data (this dataset is unfortunatelly not public)
+# import data 
 openxlsx::read.xlsx("./../Data/Humpback_Whales_Data.xlsx") -> dat_whale
 
 # fist a quick look at the missing values in the data
@@ -66,32 +83,30 @@ within(dat_whale,{
    ruhezeit[ruhezeit == 0] <- 0.001
    logatem <- log(atem)
    logruhezeit <- log(ruhezeit)
-   sqrtatem <- sqrt(atem)
-   sqrtspeed <- sqrt(speed)
-   sqrtruhezeit <- sqrt(ruhezeit * 100)
 }) -> dat_whale
 
-
-# frist split into different intensities
+# split into different intensities
 dat_whale_intens <- split(dat_whale, dat_whale[, "treatment"]) 
 ```
 
-```{r, fig.height = 11}
-# build formulas
+In regards to missing values in the data, we omit 5 observations because the mean swim speed is not available in those cases.
+
+```{r, fig.height = 11, fig.cap = "Boxplots across noise levels and phases"}
+# build formulae
 formulae <- paste(c("ruhezeit", "speed", "atem"), "~", "szenario")
 
 # max and min for plot y-axis
-sapply(c(min, max), \(x){
+sapply(list(min, max), \(x){
    
    sapply(dat_whale[, c("ruhezeit", "speed", "atem")], \(y) x(y, na.rm = TRUE))
    
    
 }) -> ylims
 
-# over szenarios
+# over scenarios
 invis.Map(\(y, nom, lims){
    
-   # safe for presentation
+   # for presentation
    # pdf(paste0("./../Presentation_1/", nom, ".pdf"))
    
    # align
@@ -117,45 +132,48 @@ invis.Map(\(y, nom, lims){
 
 ```
 
+In the last group of box plots which displays the different noise levels and phases for the mean swim speed (m/s) we observe that for high noise approaches the the mean swim speed seems to increase during the exposure. A similar observation can be made for the respiration rate. 
+
 # Distribution of Covariates
 
-```{r, warnings = FALSE, fig.height = 8}
+Next we examine the distribution of our dependent variables, even though normally distributed dependent variables do not guarantee well behaved residuals, we may still look at the distribution of our variables and their log transformation. This is especially important because @Sprogis2020 use t-tests to evaluate the significance of the estimates of their mixed effects models. 
+
+```{r, warning = FALSE, message = FALSE,fig.height = 8, fig.cap = "Variables and Transformations", fig.pos = "H"}
 # vars
 nom <- c("ruhezeit", "speed", "atem")
 nom <- c(nom, paste0("log", nom))
 
 # loop to generate plots
-# Map(\(x, bool) Dens_norm_plot(y = x, bg_alt = bool),
-#     nom, c(F, F, F, F, T, F, F ,F ,T)) -> plots
-
-# display (remove useless bin width messages)
-# print((plots[[1]] + plots[[2]] + plots[[3]]) / 
-#       (plots[[4]] + plots[[5]] + plots[[6]]) / 
-#       (plots[[7]] + plots[[8]] + plots[[9]])) |> 
-#       suppressWarnings() |>
-#       suppressMessages()
-
-# loop to generate plots
 Map(\(x, bool) Dens_norm_plot(y = x, bg_alt = bool),
     nom, c(F, F, F, F, T, F)) -> plots
 
-
-# safe for presentation
+# for presentation
 # pdf("./../Presentation_2/Variables.pdf")
 
-# display (remove useless bin width messages)
+# display 
 print((plots[[1]] + plots[[2]] + plots[[3]]) / 
-      (plots[[4]] + plots[[5]] + plots[[6]])) |> 
-      suppressWarnings() |>
-      suppressMessages()
+      (plots[[4]] + plots[[5]] + plots[[6]])) 
 
 # close graph. device
 # dev.off()
 ```
 
-# Model
+We observe that that the log transformation does not yield very promising results in the case of the respiration rate and the proportion of time resting, however, for the mean swim speed the transformed variable is significantly closer to being normally distributed than in its untransformed state.
 
-```{r}
+\newpage
+
+# Models
+
+Fortunately, @Sprogis2020 provide a supplementary file that details the models used. Accordingly, we are able to replicate the specific mixed effects models as described in the figure below. There is one exception, however, the data set that I was provided with does not include the duration of the observations that were used as weights in the GLMM-PQL model.
+
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width = 380pt]{Models.png} 
+  \end{center}
+  \caption{Models Sprogis et al.}
+\end{figure}
+
+```{r, warning = FALSE, message = FALSE}
 # formulas
 formulae_lmm <- c("speed ~ I(treatment) * I(szenario)",
                   "atem ~ I(treatment) * I(szenario)",
@@ -182,7 +200,7 @@ Map(\(type, bool1){
          list(fit, 
               summary(fit))
          
-      } else { # GLMMs
+      } else { # GLMM
          
          # fit glmm PQL
          MASS::glmmPQL(as.formula(x), random = ~ 1 | individuum,
@@ -196,8 +214,7 @@ Map(\(type, bool1){
 
    }, type, list(corAR1(), NULL, corAR1(), NULL)) |> setNames(type)
    
-}, formulae_cmb, c(TRUE, FALSE)) |> setNames(c("LMM", "GLMM")) |> 
-   suppressMessages() |> suppressWarnings() -> models
+}, formulae_cmb, c(TRUE, FALSE)) |> setNames(c("LMM", "GLMM"))  -> models
 
 # remove empty
 lapply(models, \(x){
@@ -223,6 +240,9 @@ summaries <- c(LMM_summaries, glmmPQL_summaries)
 ```
 
 # Residual Diagnostics
+
+Before taking a look at the results, we first have to check whether the residuals of our models
+allow us to perform a t-test. 
 
 ```{r, fig.height = 12}
 # adjust names
@@ -269,6 +289,10 @@ invis.Map(\(x, nom){
 }, fits, nome)
 ```
 
+In the first set of plots we observe a scatter plot of the residuals, both for the fixed and random effects. Those plots allow us to check whether there is a structure in the residuals that would imply heteroskedasticity.Fortunately, the residuals do not seem to have a such a structure.
+
+The second set of plots provides us with information about the distribution of residuals, again the plots are split into the fixed effects residuals on the left and the random effects residuals on the right. The deviation of the dots from the darkblue line for all cases except for the logarithm of mean swim speed (m/s), indicate that the residuals are not sufficiently close to being normally distributed. Unfortunately, this makes the inference presented in the publication by @Sprogis2020 invalid, as they make their conclusions based on the p-value obtained from the t-test of their estimates. The model that uses the log-transformed mean of swim speed, is not part of the publication and was estimated in hopes of well behaved residuals. Fortunately, we may therefore interpret the potential significance of the model parameters using a t-test. In the remaining cases this is unfortunately not possible.
+
 # Coefficients and t-Tests
 
 ```{r}
@@ -283,6 +307,14 @@ invis.lapply(names(summaries), \(x){
 }) |> setNames(names(summaries))
 ```
 
+# Conclusion 
 
+The ouput of the fitted models contain two factors, the treatment and the scenario. The treatment factor represents the different noise levels, the base level for this factor is *low*. The scenario factor represents the three different phases of observation, the base level is *before* in this case. As previously mentioned, only the model of log-transformed mean of swim speed fulfills the required assumptions for an interpretation of the estimate's significance based on a t-test. When fixing the type I error to 5%, i.e. setting the significance level to $\alpha = 0.05$, we find that the interaction between *high noise* and *during* is statistically significant $p = 0.0328$. We may thus conclude, that the log-transformed speed is significantly higher during the boat approaches with a high noise level when compared to the base level *low:before*. 
+
+For the remaining models one could attempt to bootstrap test statistics or confidence intervals for the model's estimates. Unfortunately, the function `confint()` which works for the package *lme4* does not (yet) provide the bootstrapped confidence intervals for the packages used in the publication of sprogis et al., i.e. *nlme* and *MASS*. The implementation of inference via bootstrapping is beyond the scope of this report, however, upon execution of `confint()` with an *nlme* object as an argument, the resulting Error contains a message that states that the functionality will soon be available for *nlme* objects.
+
+\newpage
+
+# Literature
 
 
