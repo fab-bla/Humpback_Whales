@@ -134,7 +134,7 @@ invis.Map(\(y, nom, lims){
 
 In the last group of box plots which displays the different noise levels and phases for the mean swim speed (m/s) we observe that for high noise approaches the the mean swim speed seems to increase during the exposure. A similar observation can be made for the respiration rate. 
 
-# Distribution of Covariates
+# Distribution of Variables
 
 Next we examine the distribution of our dependent variables, even though normally distributed dependent variables do not guarantee well behaved residuals, we may still look at the distribution of our variables and their log transformation. This is especially important because @Sprogis2020 use t-tests to evaluate the significance of the estimates of their mixed effects models. 
 
